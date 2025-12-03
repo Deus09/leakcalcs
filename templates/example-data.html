@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example Data | LeakCalcs.io</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>body { background-color: #f8f9fa; font-family: sans-serif; }</style>
+</head>
+<body>
+    <div class="container py-5">
+        <a href="/?lang={{ lang }}" class="btn btn-outline-secondary mb-4">&larr; Back to Calculator</a>
+        
+        <div class="bg-white p-5 rounded-4 shadow-sm">
+            <h2 class="fw-bold text-primary mb-4">Reference Data Tables</h2>
+            <p>Here are the standard leak rate conversion tables used in our algorithm.</p>
+            
+            <hr>
+            
+            <h4 class="mt-4">R134a vs Helium Correlation</h4>
+            <table class="table table-bordered table-striped mt-3">
+                <thead class="table-dark">
+                    <tr>
+                        <th>R134a Leak (gr/yr)</th>
+                        <th>Equivalent Helium (mbar·L/s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>0.5</td><td>2.32 x 10<sup>-6</sup></td></tr>
+                    <tr><td>1.0</td><td>4.64 x 10<sup>-6</sup></td></tr>
+                    <tr><td>2.8</td><td>1.30 x 10<sup>-5</sup></td></tr>
+                    <tr><td>5.0</td><td>2.32 x 10<sup>-5</sup></td></tr>
+                    <tr><td>10.0</td><td>4.64 x 10<sup>-5</sup></td></tr>
+                </tbody>
+            </table>
+            
+            <div class="alert alert-info mt-4">
+                <strong>Note:</strong> These values assume standard room conditions (25°C, 1 atm). For specific working pressures, please use the main calculator.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

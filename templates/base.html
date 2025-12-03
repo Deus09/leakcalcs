@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ ga_id }}');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}{{ t.meta_desc }}{% endblock %}">
+    <title>{% block title %}{{ t.title }}{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- MathJax for rendering equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a href="/?lang={{ lang }}" class="brand-logo me-5">
+                <div class="brand-icon">LC</div>
+                LeakCalcs.io
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav me-auto">
+                    <a href="/?lang={{ lang }}" class="nav-link-custom">{{ t.menu_home }}</a>
+                    <a href="{{ url_for('pricing', lang=lang) }}" class="nav-link-custom">{{ t.menu_pricing }}</a> 
+                    <a href="{{ url_for('examples', lang=lang) }}" class="nav-link-custom">{{ t.btn_examples }}</a>
+                    <a href="{{ url_for('about', lang=lang) }}" class="nav-link-custom">{{ t.menu_about }}</a>
+                    <a href="{{ url_for('blog_leak', lang=lang) }}" class="nav-link-custom">{{ t.menu_blog }}</a>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    
+                    <div class="dropdown">
+                        <a class="lang-btn dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-globe me-2"></i> {{ lang|upper }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item {% if lang == 'en' %}active{% endif %}" href="?lang=en">English (EN)</a></li>
+                            <li><a class="dropdown-item {% if lang == 'es' %}active{% endif %}" href="?lang=es">Español (ES)</a></li>
+                            <li><a class="dropdown-item {% if lang == 'it' %}active{% endif %}" href="?lang=it">Italiano (IT)</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="vr mx-1 d-none d-lg-block text-secondary"></div>
+
+                    {% if not is_pro %}
+                        <a href="{{ url_for('pricing', lang=lang) }}" class="btn-buy-pro shadow-sm">
+                            <i class="bi bi-lightning-fill me-1"></i> Get PRO
+                        </a>
+                        <button class="btn-login" data-bs-toggle="modal" data-bs-target="#licenseModal">
+                            Login
+                        </button>
+                    {% else %}
+                        <button class="btn-pro-active shadow-sm">
+                            <i class="bi bi-check-circle-fill me-1"></i> PRO Active
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <!-- License Modal (Common) -->
+    <div class="modal fade" id="licenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-primary">{{ t.modal_title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">{{ t.modal_desc }}</p>
+                    <input type="text" id="licenseKeyInput" class="form-control mb-3" placeholder="{{ t.modal_placeholder }}">
+                    <div id="licenseMsg" class="small text-danger"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="activateLicense()">{{ t.modal_btn }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer text-center">
+        <div class="container">
+            <div class="fw-bold text-dark mb-1">LeakCalcs.io</div>
+            <p>{{ t.footer_text }}</p>
+            <div class="mb-3">
+                <a href="{{ url_for('about', lang=lang) }}" class="footer-link">{{ t.menu_about }}</a> | 
+                <a href="{{ url_for('blog_leak', lang=lang) }}" class="footer-link">Why Leak Rates Matter</a> | 
+                <a href="{{ url_for('blog_gwp', lang=lang) }}" class="footer-link">What is GWP?</a>
+            </div>
+            <div class="text-muted small">
+                {{ t.contact_text }} <a href="mailto:info@leakcalcs.io" class="text-primary text-decoration-none">info@leakcalcs.io</a>
+            </div>
+            <div class="small text-muted mt-3">© 2025 LeakCalcs Inc.</div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Common Scripts -->
+    <script>
+        async function activateLicense() {
+            const key = document.getElementById('licenseKeyInput').value;
+            const msg = document.getElementById('licenseMsg');
+            if(!key) return;
+            
+            msg.innerText = "Checking...";
+            try {
+                const res = await fetch('/activate-license', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({license_key: key})
+                });
+                const data = await res.json();
+                if(data.success) {
+                    location.reload();
+                } else {
+                    msg.innerText = data.message;
+                }
+            } catch(e) {
+                msg.innerText = "Error connecting to server";
+            }
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

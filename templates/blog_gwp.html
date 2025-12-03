@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Global Warming Potential (GWP): A Thermodynamic & Regulatory Analysis | LeakCalcs.io{% endblock %}
+
+{% block meta_description %}In-depth engineering analysis of Global Warming Potential (GWP). Understand radiative forcing, atmospheric lifetime, and the thermodynamic implications of low-GWP refrigerants under F-Gas and EPA regulations.{% endblock %}
+
+{% block extra_head %}
+    <meta name="keywords" content="GWP, Global Warming Potential, Radiative Forcing, HVAC Engineering, Refrigerants, R404A, R32, R290, Thermodynamics, F-Gas Regulation">
+    <meta name="author" content="LeakCalcs Engineering Team">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #333; }
+        .article-container { max-width: 900px; margin: 0 auto; }
+        h1, h2, h3 { color: #2c3e50; font-weight: 700; }
+        h2 { margin-top: 2.5rem; border-bottom: 2px solid #e9ecef; padding-bottom: 0.5rem; }
+        .technical-note { background-color: #e8f4f8; border-left: 5px solid #17a2b8; padding: 1.5rem; margin: 1.5rem 0; border-radius: 4px; }
+        .equation { background-color: #fff; padding: 1rem; border: 1px solid #dee2e6; border-radius: 4px; text-align: center; font-family: 'Times New Roman', serif; font-size: 1.2rem; margin: 1rem 0; }
+        table { font-size: 0.95rem; }
+        .caption { font-size: 0.85rem; color: #6c757d; text-align: center; margin-top: 0.5rem; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5 article-container">
+        <a href="/?lang={{ lang }}" class="btn btn-outline-secondary mb-4"><i class="fas fa-arrow-left"></i> Back to Calculator</a>
+        
+        <article class="bg-white p-5 rounded-4 shadow-sm">
+            <header class="mb-5">
+                <h1 class="display-5 fw-bold mb-3">Global Warming Potential (GWP): A Thermodynamic & Regulatory Analysis</h1>
+                <div class="d-flex align-items-center text-muted">
+                    <span class="me-3"><i class="far fa-calendar-alt"></i> Updated: Dec 2025</span>
+                    <span class="me-3"><i class="far fa-user"></i> Engineering Team</span>
+                    <span><i class="fas fa-tag"></i> Thermodynamics</span>
+                </div>
+            </header>
+
+            <section>
+                <p class="lead">For HVAC&R engineers, Global Warming Potential (GWP) is no longer just an environmental metric—it is a primary design constraint. This article explores the physics behind GWP, its calculation methods, and the trade-offs between low-GWP fluids and thermodynamic performance.</p>
+            </section>
+
+            <section>
+                <h2>1. The Physics of GWP: Radiative Forcing</h2>
+                <p>Global Warming Potential is a relative measure of how much heat a greenhouse gas traps in the atmosphere. It compares the amount of heat trapped by a certain mass of the gas in question to the amount of heat trapped by a similar mass of carbon dioxide ($CO_2$).</p>
+                
+                <div class="technical-note">
+                    <strong>Engineering Definition:</strong> GWP is defined as the ratio of the time-integrated radiative forcing from the instantaneous release of 1 kg of a trace substance relative to that of 1 kg of a reference gas ($CO_2$).
+                </div>
+
+                <p>Mathematically, it is expressed as:</p>
+                <div class="equation">
+                    $$ GWP(x) = \frac{\int_{0}^{TH} a_x \cdot [x(t)] dt}{\int_{0}^{TH} a_{CO_2} \cdot [CO_2(t)] dt} $$
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>$TH$ is the time horizon (typically 20 or 100 years).</li>
+                    <li>$a_x$ is the radiative efficiency of the substance (W m$^{-2}$ kg$^{-1}$).</li>
+                    <li>$[x(t)]$ is the time-dependent decay of the abundance of the substance.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>2. Comparative Analysis of Refrigerants</h2>
+                <p>The transition from HFCs to HFOs and natural refrigerants is driven by these GWP values. Below is a comparison based on IPCC AR6 data:</p>
+                
+                <table class="table table-hover table-bordered mt-3">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Refrigerant</th>
+                            <th>Type</th>
+                            <th>GWP (100-yr)</th>
+                            <th>Thermodynamic Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>R-744 (CO2)</strong></td>
+                            <td>Natural</td>
+                            <td>1</td>
+                            <td>High volumetric capacity, transcritical cycle operation.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R-290 (Propane)</strong></td>
+                            <td>HC</td>
+                            <td>~3</td>
+                            <td>Excellent thermodynamic properties, A3 Flammability.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R-1234yf</strong></td>
+                            <td>HFO</td>
+                            <td>< 1</td>
+                            <td>Drop-in for R-134a, mild flammability (A2L).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R-32</strong></td>
+                            <td>HFC</td>
+                            <td>675</td>
+                            <td>High discharge temperature, widely used in AC.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R-134a</strong></td>
+                            <td>HFC</td>
+                            <td>1,430</td>
+                            <td>Standard automotive/chiller gas, being phased out.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>R-404A</strong></td>
+                            <td>HFC Blend</td>
+                            <td>3,922</td>
+                            <td>High GWP, rapid phase-out in commercial refrigeration.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>3. Regulatory Impact on System Design</h2>
+                <p>Regulations such as the <strong>EU F-Gas Regulation (517/2014 & 2024 revision)</strong> and the <strong>EPA AIM Act</strong> mandate a phasedown of HFCs. This impacts compressor selection, heat exchanger sizing, and safety protocols.</p>
+                <ul>
+                    <li><strong>Flammability (A2L/A3):</strong> Moving to low-GWP fluids often means dealing with flammability. Standards like <em>IEC 60335-2-89</em> dictate charge limits.</li>
+                    <li><strong>Glide:</strong> Many low-GWP replacements are zeotropic blends (e.g., R448A, R449A) with significant temperature glide, affecting evaporator design.</li>
+                    <li><strong>Operating Pressures:</strong> R744 systems operate at pressures >100 bar, requiring specialized piping and safety valves.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. Conclusion</h2>
+                <p>Selecting a refrigerant is an optimization problem involving GWP, capacity, efficiency (COP), safety, and cost. Engineers must look beyond the GWP number and consider the <strong>Total Equivalent Warming Impact (TEWI)</strong>, which accounts for both direct emissions (leaks) and indirect emissions (energy consumption).</p>
+            </section>
+        </article>
+    </div>
+{% endblock %}

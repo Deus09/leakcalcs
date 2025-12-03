@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ ga_id }}');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ t.meta_desc }}">
+    <title>{{ t.title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div class="spinner-engineer"></div>
+        <div class="loading-text" id="loadingText">Processing...</div>
+        <div class="text-muted small mt-2">Running ASTM E499 Algorithm</div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a href="/?lang={{ lang }}" class="brand-logo me-5">
+                <div class="brand-icon">LC</div>
+                LeakCalcs.io
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav me-auto">
+                    <a href="/?lang={{ lang }}" class="nav-link-custom active">{{ t.menu_home }}</a>
+                    <a href="{{ url_for('pricing', lang=lang) }}" class="nav-link-custom">{{ t.menu_pricing }}</a> <a href="{{ url_for('examples', lang=lang) }}" class="nav-link-custom">{{ t.btn_examples }}</a>
+                    <a href="{{ url_for('about', lang=lang) }}" class="nav-link-custom">{{ t.menu_about }}</a>
+                    <a href="{{ url_for('blog_leak', lang=lang) }}" class="nav-link-custom">{{ t.menu_blog }}</a>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    
+                    <div class="dropdown">
+                        <a class="lang-btn dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-globe me-2"></i> {{ lang|upper }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item {% if lang == 'en' %}active{% endif %}" href="/?lang=en">English (EN)</a></li>
+                            <li><a class="dropdown-item {% if lang == 'es' %}active{% endif %}" href="/?lang=es">Español (ES)</a></li>
+                            <li><a class="dropdown-item {% if lang == 'it' %}active{% endif %}" href="/?lang=it">Italiano (IT)</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="vr mx-1 d-none d-lg-block text-secondary"></div>
+
+                    {% if not is_pro %}
+                        <a href="{{ url_for('pricing', lang=lang) }}" class="btn-buy-pro shadow-sm">
+                            <i class="bi bi-lightning-fill me-1"></i> Get PRO
+                        </a>
+                        <button class="btn-login" data-bs-toggle="modal" data-bs-target="#licenseModal">
+                            Login
+                        </button>
+                    {% else %}
+                        <button class="btn-pro-active shadow-sm">
+                            <i class="bi bi-check-circle-fill me-1"></i> PRO Active
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content container">
+        <div class="row justify-content-center">
+            <div class="col-xl-9 col-lg-10">
+                
+                <div class="main-card">
+                    <div class="p-4 p-md-5">
+                        <div class="text-center mb-5">
+                            <h1 class="header-title mb-2">{{ t.header_title }}</h1>
+                            <p class="text-muted small">Professional Conversion Tool for QC & R&D Engineers</p>
+                        </div>
+                        
+                        <form method="POST" id="calcForm" action="/?lang={{ lang }}">
+                            <input type="hidden" name="calc_mode" id="hiddenCalcMode" value="{{ inputs.calc_mode }}">
+                            <input type="hidden" name="input_method" id="hiddenInputMethod" value="{{ inputs.input_method }}">
+                            
+                            <div class="top-select-container mb-4">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label-sm d-block">{{ t.lbl_calc_mode }}</label>
+                                        <select class="form-select border-0 shadow-none bg-white py-2" id="calcModeSelect">
+                                            <option value="oda" {% if inputs.calc_mode == 'oda' %}selected{% endif %}>{{ t.opt_room }}</option>
+                                            <option value="musteri" {% if inputs.calc_mode == 'musteri' %}selected{% endif %}>
+                                                {{ t.opt_customer }} {% if not is_pro %}🔒{% endif %}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <label class="form-label-sm d-block">{{ t.lbl_fluid }}</label>
+                                        <select class="form-select border-0 shadow-none bg-white py-2" name="fluid" id="fluidSelect">
+                                            <option value="R134a" {% if inputs.fluid == 'R134a' %}selected{% endif %}>R134a (Always Free)</option>
+                                            
+                                            <option value="R600a" {% if inputs.fluid == 'R600a' %}selected{% endif %}>R600a {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R290" {% if inputs.fluid == 'R290' %}selected{% endif %}>R290 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="CO2" {% if inputs.fluid == 'CO2' %}selected{% endif %}>CO2 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="SF6" {% if inputs.fluid == 'SF6' %}selected{% endif %}>SF6 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R1234yf" {% if inputs.fluid == 'R1234yf' %}selected{% endif %}>R1234yf {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R404A" {% if inputs.fluid == 'R404A' %}selected{% endif %}>R404A {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R410A" {% if inputs.fluid == 'R410A' %}selected{% endif %}>R410A {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R407C" {% if inputs.fluid == 'R407C' %}selected{% endif %}>R407C {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R507" {% if inputs.fluid == 'R507' %}selected{% endif %}>R507 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R508B" {% if inputs.fluid == 'R508B' %}selected{% endif %}>R508B {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R-22" {% if inputs.fluid == 'R-22' %}selected{% endif %}>R-22 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R-12" {% if inputs.fluid == 'R-12' %}selected{% endif %}>R-12 {% if not is_pro %}🔒{% endif %}</option>
+                                            <option value="R-123" {% if inputs.fluid == 'R-123' %}selected{% endif %}>R-123 {% if not is_pro %}🔒{% endif %}</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label-sm d-block">{{ t.lbl_input_method }}</label>
+                                        <select class="form-select border-0 shadow-none bg-white py-2" id="inputMethodSelect">
+                                            <option value="manual" {% if inputs.input_method == 'manual' %}selected{% endif %}>{{ t.opt_manual }}</option>
+                                            <option value="lifetime" {% if inputs.input_method == 'lifetime' %}selected{% endif %}>
+                                                {{ t.opt_lifetime }} {% if not is_pro %}🔒{% endif %}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="lifetimeBox" class="lifetime-box mb-5">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-dark">{{ t.lbl_sys_charge }}</label>
+                                        <input type="number" step="any" class="form-control" name="sys_charge" value="{{ inputs.sys_charge }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-dark">{{ t.lbl_lifespan }}</label>
+                                        <input type="number" step="any" class="form-control" name="lifespan" value="{{ inputs.lifespan }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-dark">{{ t.lbl_max_loss }}</label>
+                                        <input type="number" step="any" class="form-control" name="max_loss" value="{{ inputs.max_loss }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-5 mt-2">
+                                <div class="col-md-6 border-end-md">
+                                    <h6 class="text-muted border-bottom pb-3 mb-4 fw-bold">{{ t.col1_title }}</h6>
+                                    <div class="mb-4">
+                                        <label class="form-label small fw-bold text-secondary">{{ t.lbl_leak_amt }}</label>
+                                        <div class="input-group">
+                                            <input type="number" step="any" min="0" class="form-control" name="leak_amount" id="leakInput" placeholder="{{ t.placeholder_leak_room }}" value="{{ inputs.leak_amount }}" required>
+                                            <span class="input-group-text bg-light border-start-0">gr/yr</span>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-7">
+                                            <label class="form-label small fw-bold text-secondary">{{ t.lbl_op_press }}</label>
+                                            <div class="input-group">
+                                                <input type="number" step="any" min="0" class="form-control" name="op_pressure" value="{{ inputs.op_pressure }}" required>
+                                                <select class="form-select bg-light" style="max-width: 80px;" name="op_pressure_unit">
+                                                    <option value="bar" {% if inputs.op_pressure_unit == 'bar' %}selected{% endif %}>bar</option>
+                                                    <option value="psig" {% if inputs.op_pressure_unit == 'psig' %}selected{% endif %}>psig</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <label class="form-label small fw-bold text-secondary">{{ t.lbl_op_temp }}</label>
+                                            <div class="input-group">
+                                                <input type="number" step="any" class="form-control" name="op_temp" value="{{ inputs.op_temp }}" required>
+                                                <select class="form-select bg-light" style="max-width: 70px;" name="op_temp_unit">
+                                                    <option value="C" {% if inputs.op_temp_unit == 'C' %}selected{% endif %}>°C</option>
+                                                    <option value="F" {% if inputs.op_temp_unit == 'F' %}selected{% endif %}>°F</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="text-muted border-bottom pb-3 mb-4 fw-bold">{{ t.col2_title }}</h6>
+                                    <div class="mb-4">
+                                        <label class="form-label small fw-bold text-secondary">{{ t.lbl_he_purity }}</label>
+                                        <div class="input-group">
+                                            <input type="number" step="any" min="0" max="100" class="form-control" name="he_purity" value="{{ inputs.he_purity }}" required>
+                                            <span class="input-group-text bg-light border-start-0">%</span>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-7">
+                                            <label class="form-label small fw-bold text-secondary">{{ t.lbl_test_press }}</label>
+                                            <div class="input-group">
+                                                <input type="number" step="any" min="0" class="form-control" name="he_pressure" value="{{ inputs.he_pressure }}" required>
+                                                <select class="form-select bg-light" style="max-width: 80px;" name="he_pressure_unit">
+                                                    <option value="bar" {% if inputs.he_pressure_unit == 'bar' %}selected{% endif %}>bar</option>
+                                                    <option value="psig" {% if inputs.he_pressure_unit == 'psig' %}selected{% endif %}>psig</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <label class="form-label small fw-bold text-secondary">{{ t.lbl_test_temp }}</label>
+                                            <div class="input-group">
+                                                <input type="number" step="any" class="form-control" name="he_temp" value="{{ inputs.he_temp }}" required>
+                                                <select class="form-select bg-light" style="max-width: 70px;" name="he_temp_unit">
+                                                    <option value="C" {% if inputs.he_temp_unit == 'C' %}selected{% endif %}>°C</option>
+                                                    <option value="F" {% if inputs.he_temp_unit == 'F' %}selected{% endif %}>°F</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5">
+                                <button type="submit" class="btn-calc shadow-sm">
+                                    {{ t.btn_calc }} <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        {% if error %}
+                        <div class="alert alert-danger mt-4 text-center border-0 bg-danger-subtle text-danger fw-bold">{{ error }}</div>
+                        {% endif %}
+
+                        {% if result %}
+                        <div class="mt-5 pt-4 border-top animate-fade-in">
+                            <div class="text-center mb-4">
+                                <h4 class="fw-bold text-secondary">{{ t.res_title }}</h4>
+                                {% if result.details.calculated_from_lifetime %}
+                                <div class="badge bg-info-subtle text-info-emphasis px-3 py-2 mt-2">
+                                    {{ t.res_calc_leak }}: {{ result.details.calculated_from_lifetime|round(4) }} gr/yr
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row g-4 justify-content-center">
+                                <div class="col-md-5">
+                                    <div class="res-card card-gas shadow-sm">
+                                        <div class="text-uppercase fw-bold text-muted small">{{ result.fluid }} {{ t.res_gas_leak }}</div>
+                                        <div class="res-val">{% if result.mode == 'oda' %}{{ result.q_std }}{% else %}{{ result.q_work }}{% endif %}</div>
+                                        <div class="small text-muted">mbar·L/sn</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 d-flex align-items-center justify-content-center text-muted">
+                                    <i class="bi bi-arrow-right fs-1 d-none d-md-block"></i>
+                                    <i class="bi bi-arrow-down fs-1 d-md-none"></i>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="res-card card-he shadow">
+                                        <div class="text-uppercase fw-bold small text-primary">{{ t.res_he_leak }}</div>
+                                        <div class="res-val">{{ result.q_he_test }}</div>
+                                        <div class="small text-muted">mbar·L/sn</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="proUpsellModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header modal-upsell-header">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-star-fill me-2"></i>{{ t.upsell_title }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <h4 class="fw-bold text-dark mb-3">PRO Feature</h4>
+                    <p class="text-muted mb-4">{{ t.upsell_desc }}</p>
+                    
+                    <ul class="list-unstyled text-start bg-light p-3 rounded mb-4 feature-list">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> All Refrigerants (R600a, R290, R1234yf...)</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Customer Conditions Mode</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Lifetime Prediction Calculator</li>
+                    </ul>
+
+                    <h2 class="fw-bold text-primary mb-1">$19 <small class="fs-6 text-muted fw-normal">/ month</small></h2>
+                    <div class="small text-muted mb-4">Cancel anytime.</div>
+
+                    <a href="{{ url_for('pricing', lang=lang) }}" class="btn btn-warning w-100 py-3 fw-bold shadow-sm fs-5">
+                        <i class="bi bi-lightning-charge-fill me-2"></i> {{ t.upsell_btn }}
+                    </a>
+                    
+                    <div class="mt-3">
+                        <a href="#" class="text-muted small" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#licenseModal">{{ t.upsell_login }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="licenseModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-primary">{{ t.modal_title }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">{{ t.modal_desc }}</p>
+                    <input type="text" id="licenseKeyInput" class="form-control mb-3" placeholder="{{ t.modal_placeholder }}">
+                    <div id="licenseMsg" class="small text-danger"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="activateLicense()">{{ t.modal_btn }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer text-center">
+        <div class="container">
+            <div class="fw-bold text-dark mb-1">LeakCalcs.io</div>
+            <p>{{ t.footer_text }}</p>
+            <div class="mb-3">
+                <a href="{{ url_for('about', lang=lang) }}" class="footer-link">{{ t.menu_about }}</a> | 
+                <a href="{{ url_for('blog_leak', lang=lang) }}" class="footer-link">Why Leak Rates Matter</a> | 
+                <a href="{{ url_for('blog_gwp', lang=lang) }}" class="footer-link">What is GWP?</a>
+            </div>
+            <div class="text-muted small">
+                {{ t.contact_text }} <a href="mailto:info@leakcalcs.io" class="text-primary text-decoration-none">info@leakcalcs.io</a>
+            </div>
+            <div class="small text-muted mt-3">© 2025 LeakCalcs Inc.</div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.LEAK_CALCS_CONFIG = {
+            isPro: {{ 'true' if is_pro else 'false' }},
+            placeholders: {
+                room: "{{ t.placeholder_leak_room }}",
+                cust: "{{ t.placeholder_leak_cust }}"
+            }
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
