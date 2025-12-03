@@ -50,7 +50,22 @@ TRANSLATIONS = {
         'upsell_title': 'Upgrade to PRO',
         'upsell_desc': 'You selected a PRO Feature. Upgrade your plan to access all gases and advanced modes.',
         'upsell_btn': 'Get Instant Access',
-        'upsell_login': 'Already purchased? Activate License'
+        'upsell_login': 'Already purchased? Activate License',
+        
+        # About Page
+        'about_title': 'About LeakCalcs.io',
+        'about_subtitle': 'Precision Engineering for Leak Testing Professionals',
+        'about_mission_title': 'Our Mission',
+        'about_mission_text': 'To provide the most accurate and accessible leak rate conversion tools for the HVAC-R industry, eliminating guesswork and ensuring quality compliance.',
+        'about_problem_title': 'The Challenge',
+        'about_problem_text': 'Converting refrigerant leak rates to helium test parameters is complex. Relying on outdated manuals or simplified spreadsheets can lead to production errors, false passes, or unnecessary scrap.',
+        'about_solution_title': 'The Solution',
+        'about_solution_text': 'LeakCalcs.io uses real-time thermodynamic equations of state (EOS) to calculate viscosity and pressure differentials instantly, adhering to ASTM E499 standards.',
+        'about_team_title': 'Who We Are',
+        'about_team_text': 'Founded by Mechanical Engineers with extensive experience in HVAC-R quality control and production line optimization. We understand the daily challenges of the shop floor and the R&D lab.',
+        'about_contact_title': 'Contact Us',
+        'about_contact_text': 'Have a feature request or found a bug? We value your feedback.',
+        'about_back_btn': 'Back to Calculator'
     },
     'es': {
         'title': 'Calculadora de Fugas de Helio | LeakCalcs.io',
@@ -103,7 +118,22 @@ TRANSLATIONS = {
         'upsell_title': 'Actualizar a PRO',
         'upsell_desc': 'Seleccionó una función PRO. Actualice su plan para acceder a todos los gases.',
         'upsell_btn': 'Obtener Acceso Instantáneo',
-        'upsell_login': '¿Ya compró? Activar Licencia'
+        'upsell_login': '¿Ya compró? Activar Licencia',
+
+        # About Page
+        'about_title': 'Sobre LeakCalcs.io',
+        'about_subtitle': 'Ingeniería de Precisión para Profesionales de Pruebas de Fugas',
+        'about_mission_title': 'Nuestra Misión',
+        'about_mission_text': 'Proporcionar las herramientas de conversión de tasas de fuga más precisas y accesibles para la industria HVAC-R, eliminando conjeturas y asegurando el cumplimiento de la calidad.',
+        'about_problem_title': 'El Desafío',
+        'about_problem_text': 'Convertir tasas de fuga de refrigerante a parámetros de prueba de helio es complejo. Depender de manuales obsoletos o hojas de cálculo simplificadas puede llevar a errores de producción.',
+        'about_solution_title': 'La Solución',
+        'about_solution_text': 'LeakCalcs.io utiliza ecuaciones de estado termodinámicas (EOS) en tiempo real para calcular la viscosidad y los diferenciales de presión al instante, cumpliendo con las normas ASTM E499.',
+        'about_team_title': 'Quiénes Somos',
+        'about_team_text': 'Fundado por Ingenieros Mecánicos con amplia experiencia en control de calidad HVAC-R y optimización de líneas de producción. Entendemos los desafíos diarios de la planta y el laboratorio de I+D.',
+        'about_contact_title': 'Contáctenos',
+        'about_contact_text': '¿Tiene una solicitud de función o encontró un error? Valoramos sus comentarios.',
+        'about_back_btn': 'Volver a la Calculadora'
     },
     'it': {
         'title': 'Calcolatore Tasso di Perdita Elio | LeakCalcs.io',
@@ -156,6 +186,21 @@ TRANSLATIONS = {
         'upsell_title': 'Passa a PRO',
         'upsell_desc': 'Hai selezionato una funzione PRO. Aggiorna il piano per accedere a tutto.',
         'upsell_btn': 'Ottieni Accesso Immediato',
-        'upsell_login': 'Già acquistato? Attiva Licenza'
+        'upsell_login': 'Già acquistato? Attiva Licenza',
+
+        # About Page
+        'about_title': 'Chi Siamo',
+        'about_subtitle': 'Ingegneria di Precisione per Professionisti dei Test di Tenuta',
+        'about_mission_title': 'La Nostra Missione',
+        'about_mission_text': 'Fornire gli strumenti di conversione dei tassi di perdita più accurati e accessibili per l\'industria HVAC-R, eliminando le congetture e garantendo la conformità della qualità.',
+        'about_problem_title': 'La Sfida',
+        'about_problem_text': 'Convertire i tassi di perdita di refrigerante in parametri di test all\'elio è complesso. Affidarsi a manuali obsoleti o fogli di calcolo semplificati può portare a errori di produzione.',
+        'about_solution_title': 'La Soluzione',
+        'about_solution_text': 'LeakCalcs.io utilizza equazioni di stato termodinamiche (EOS) in tempo reale per calcolare istantaneamente viscosità e differenziali di pressione, aderendo agli standard ASTM E499.',
+        'about_team_title': 'Chi Siamo',
+        'about_team_text': 'Fondato da Ingegneri Meccanici con vasta esperienza nel controllo qualità HVAC-R e nell\'ottimizzazione delle linee di produzione. Comprendiamo le sfide quotidiane dell\'officina e del laboratorio R&D.',
+        'about_contact_title': 'Contattaci',
+        'about_contact_text': 'Hai una richiesta di funzionalità o hai trovato un bug? Apprezziamo il tuo feedback.',
+        'about_back_btn': 'Torna alla Calcolatrice'
     }
 }
