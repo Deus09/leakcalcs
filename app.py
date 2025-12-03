@@ -2,6 +2,9 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import requests
 import os
+import jwt
+import json
+from jwt.algorithms import RSAAlgorithm
 from dotenv import load_dotenv
 from translations import TRANSLATIONS
 from utils import (
@@ -13,6 +16,34 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_dev_key')
+
+# --- CLERK CONFIGURATION ---
+CLERK_PUBLISHABLE_KEY = "pk_test_ZWxlY3RyaWMtbWFrby0xOS5jbGVyay5hY2NvdW50cy5kZXYk"
+CLERK_SECRET_KEY = "sk_test_8RveeYq2RWz8o8TcTRngFRU4MHsb7ZDMvB3oGcnW2p"
+CLERK_DOMAIN = "electric-mako-19.clerk.accounts.dev"
+CLERK_JWKS_URL = f"https://{CLERK_DOMAIN}/.well-known/jwks.json"
+
+def verify_clerk_session(session_token):
+    try:
+        # Fetch JWKS (Note: In production, you should cache this)
+        jwks = requests.get(CLERK_JWKS_URL).json()
+        public_keys = {}
+        for jwk in jwks['keys']:
+            kid = jwk['kid']
+            public_keys[kid] = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
+        
+        header = jwt.get_unverified_header(session_token)
+        kid = header['kid']
+        key = public_keys.get(kid)
+        
+        if not key:
+            return None
+            
+        payload = jwt.decode(session_token, key=key, algorithms=['RS256'])
+        return payload
+    except Exception as e:
+        print(f"JWT Verification Error: {e}")
+        return None
 
 # --- AYARLAR ---
 LEMON_API_KEY = os.getenv('LEMON_API_KEY')
@@ -31,6 +62,15 @@ def inject_is_pro():
 # --- LİSANS DOĞRULAMA ---
 @app.route('/activate-license', methods=['POST'])
 def activate_license():
+    # Verify Clerk Session
+    session_token = request.cookies.get('__session')
+    if not session_token:
+        return jsonify({'success': False, 'message': 'Unauthorized: Please sign in first'})
+    
+    claims = verify_clerk_session(session_token)
+    if not claims:
+        return jsonify({'success': False, 'message': 'Unauthorized: Invalid session'})
+
     data = request.json
     license_key = data.get('license_key')
     if not license_key: return jsonify({'success': False, 'message': 'No key provided'})
