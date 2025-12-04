@@ -18,9 +18,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_dev_key')
 
 # --- CLERK CONFIGURATION ---
-CLERK_PUBLISHABLE_KEY = "pk_test_ZWxlY3RyaWMtbWFrby0xOS5jbGVyay5hY2NvdW50cy5kZXYk"
-CLERK_SECRET_KEY = "sk_test_8RveeYq2RWz8o8TcTRngFRU4MHsb7ZDMvB3oGcnW2p"
-CLERK_DOMAIN = "electric-mako-19.clerk.accounts.dev"
+CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY")
+CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
+CLERK_DOMAIN = os.getenv("CLERK_DOMAIN", "electric-mako-19.clerk.accounts.dev")
 CLERK_JWKS_URL = f"https://{CLERK_DOMAIN}/.well-known/jwks.json"
 
 def verify_clerk_session(session_token):
@@ -52,6 +52,10 @@ GA_ID = os.getenv('GA_ID', 'G-XXXXXXXXXX')
 @app.context_processor
 def inject_ga_id():
     return dict(ga_id=GA_ID)
+
+@app.context_processor
+def inject_clerk_key():
+    return dict(clerk_publishable_key=CLERK_PUBLISHABLE_KEY)
 
 @app.context_processor
 def inject_is_pro():
