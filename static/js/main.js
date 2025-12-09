@@ -90,6 +90,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500); 
         setTimeout(() => { clearInterval(interval); form.submit(); }, 2500);
     });
+
+    // PDF Modal Logic
+    const pdfModal = document.getElementById('pdfModal');
+    if (pdfModal) {
+        pdfModal.addEventListener('show.bs.modal', function () {
+            // Copy values from main form to hidden PDF form
+            document.getElementById('pdf_fluid').value = fluidSelect.value;
+            document.getElementById('pdf_leak_amount').value = document.getElementsByName('leak_amount')[0].value;
+            document.getElementById('pdf_op_pressure').value = document.getElementsByName('op_pressure')[0].value;
+            document.getElementById('pdf_op_pressure_unit').value = document.getElementsByName('op_pressure_unit')[0].value;
+            document.getElementById('pdf_op_temp').value = document.getElementsByName('op_temp')[0].value;
+            document.getElementById('pdf_op_temp_unit').value = document.getElementsByName('op_temp_unit')[0].value;
+            document.getElementById('pdf_he_pressure').value = document.getElementsByName('he_pressure')[0].value;
+            document.getElementById('pdf_he_pressure_unit').value = document.getElementsByName('he_pressure_unit')[0].value;
+            document.getElementById('pdf_he_temp').value = document.getElementsByName('he_temp')[0].value;
+            document.getElementById('pdf_he_temp_unit').value = document.getElementsByName('he_temp_unit')[0].value;
+            document.getElementById('pdf_he_purity').value = document.getElementsByName('he_purity')[0].value;
+            document.getElementById('pdf_calc_mode').value = modeSelect.value;
+            document.getElementById('pdf_input_method').value = inputMethodSelect.value;
+            document.getElementById('pdf_sys_charge').value = document.getElementsByName('sys_charge')[0].value;
+            document.getElementById('pdf_lifespan').value = document.getElementsByName('lifespan')[0].value;
+            document.getElementById('pdf_max_loss').value = document.getElementsByName('max_loss')[0].value;
+        });
+    }
 });
 
 function activateLicense() {

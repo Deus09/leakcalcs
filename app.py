@@ -1,9 +1,12 @@
 # --- DÜZELTME BURADA YAPILDI: redirect ve url_for eklendi ---
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, make_response
 import requests
 import os
 import jwt
 import json
+import datetime
+from io import BytesIO
+from xhtml2pdf import pisa
 from jwt.algorithms import RSAAlgorithm
 from dotenv import load_dotenv
 from translations import TRANSLATIONS
@@ -234,6 +237,109 @@ def examples():
     lang_code = request.args.get('lang', 'en')
     t = TRANSLATIONS.get(lang_code, TRANSLATIONS['en'])
     return render_template('example-data.html', t=t, lang=lang_code)
+
+@app.route('/download-pdf', methods=['POST'])
+def download_pdf():
+    inputs = request.form.to_dict()
+    
+    # --- Calculation Logic (Copied from index) ---
+    calc_mode = inputs.get('calc_mode', 'oda')
+    fluid = inputs.get('fluid', 'R134a')
+    input_method = inputs.get('input_method', 'manual')
+    
+    result = None
+    try:
+        # Ömür Hesabı
+        calculated_leak_val = None
+        if input_method == 'lifetime':
+            sys_charge = float(inputs['sys_charge'])
+            lifespan = float(inputs['lifespan'])
+            max_loss_pct = float(inputs['max_loss'])
+            leak_mass_yr = (sys_charge * (max_loss_pct / 100.0)) / lifespan
+            inputs['leak_amount'] = f"{leak_mass_yr:.4f}"
+            calculated_leak_val = leak_mass_yr
+        else:
+            leak_mass_yr = float(inputs['leak_amount'])
+
+        # Standart Hesaplamalar
+        op_press_val = float(inputs['op_pressure'])
+        op_temp_val = float(inputs['op_temp'])
+        he_press_val = float(inputs['he_pressure'])
+        he_temp_val = float(inputs['he_temp'])
+        he_purity = float(inputs['he_purity']) / 100.0
+
+        op_T_K = convert_to_kelvin(op_temp_val, inputs['op_temp_unit'])
+        op_P_Pa = convert_to_pa_direct(op_press_val, inputs['op_pressure_unit'])
+        he_T_K = convert_to_kelvin(he_temp_val, inputs['he_temp_unit'])
+        he_P_Pa = convert_to_pa_direct(he_press_val, inputs['he_pressure_unit'])
+
+        mw_gas, _, source_gas = get_gas_properties(fluid, STD_T_K, STD_P_REF)
+        
+        mol_per_sec = leak_mass_yr / (mw_gas * 31536000)
+        correction = 0.975 if fluid == "R600a" else 0.985
+        
+        result_details = {
+            "visc_gas_std": "N/A", "visc_he_std": "N/A", "visc_gas_op": "N/A", "visc_he_test": "N/A",
+            "k_visc_std": "N/A", "k_visc": "N/A", "k_press": "N/A", "correction": f"{correction:.3f}",
+            "calculated_from_lifetime": calculated_leak_val
+        }
+
+        if calc_mode == 'oda':
+            q_std_raw = (mol_per_sec * R_GAS * STD_T_K) * 10
+            q_std_corrected = q_std_raw * correction
+            _, visc_gas_std, _ = get_gas_properties(fluid, STD_T_K, STD_P_REF)
+            _, visc_he_std, _ = get_gas_properties("Helium", STD_T_K, STD_P_REF)
+            
+            if visc_gas_std and visc_he_std:
+                k_visc_std = visc_gas_std / visc_he_std
+                q_he_std = q_std_corrected * k_visc_std
+                _, visc_gas_op, _ = get_gas_properties(fluid, op_T_K, op_P_Pa)
+                q_op_final = q_std_corrected * (visc_gas_std / visc_gas_op) * (op_P_Pa**2 / STD_P_REF**2) if visc_gas_op else 0
+                _, visc_he_test, _ = get_gas_properties("Helium", he_T_K, he_P_Pa)
+                q_he_test_final = q_he_std * (visc_he_std / visc_he_test) * (he_P_Pa**2 / STD_P_REF**2) * he_purity if visc_he_test else 0
+                result_details.update({"visc_gas_std": f"{visc_gas_std:.2f}", "visc_he_std": f"{visc_he_std:.2f}", "visc_gas_op": f"{visc_gas_op:.2f}", "visc_he_test": f"{visc_he_test:.2f}", "k_visc_std": f"{k_visc_std:.3f}"})
+                result = {'mode': 'oda', "fluid": fluid, "q_std": f"{q_std_corrected:.2e}", "q_he_std": f"{q_he_std:.2e}", "q_op": f"{q_op_final:.2e}", "q_he_test": f"{q_he_test_final:.2e}", "units": { "op_p": f"{op_press_val} {inputs['op_pressure_unit']}", "op_t": f"{op_temp_val} °{inputs['op_temp_unit']}", "he_p": f"{he_press_val} {inputs['he_pressure_unit']}", "he_t": f"{he_temp_val} °{inputs['he_temp_unit']}" }, "details": result_details}
+        else:
+            q_work_raw = (mol_per_sec * R_GAS * op_T_K) * 10
+            q_work_corrected = q_work_raw * correction
+            _, visc_gas_work, _ = get_gas_properties(fluid, op_T_K, op_P_Pa)
+            _, visc_he_test, _ = get_gas_properties("Helium", he_T_K, he_P_Pa)
+            if visc_gas_work and visc_he_test:
+                k_visc = visc_gas_work / visc_he_test
+                k_press = (he_P_Pa**2) / (op_P_Pa**2)
+                q_he_test_final = q_work_corrected * k_visc * k_press * he_purity
+                result_details.update({"visc_gas_work": f"{visc_gas_work:.2f}", "visc_he_test": f"{visc_he_test:.2f}", "k_visc": f"{k_visc:.3f}", "k_press": f"{k_press:.3f}"})
+                result = {'mode': 'musteri', "fluid": fluid, "q_work": f"{q_work_corrected:.2e}", "q_he_test": f"{q_he_test_final:.2e}", "units": { "op_p": f"{op_press_val} {inputs['op_pressure_unit']}", "op_t": f"{op_temp_val} °{inputs['op_temp_unit']}", "he_p": f"{he_press_val} {inputs['he_pressure_unit']}", "he_t": f"{he_temp_val} °{inputs['he_temp_unit']}" }, "details": result_details}
+
+    except Exception as e:
+        return f"Error generating PDF: {str(e)}", 400
+
+    # --- PDF Generation ---
+    rendered_html = render_template(
+        'report_template.html',
+        inputs=inputs,
+        result=result,
+        project_name=inputs.get('project_name'),
+        engineer_name=inputs.get('engineer_name'),
+        batch_number=inputs.get('batch_number'),
+        generation_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    )
+
+    pdf_output = BytesIO()
+    pisa_status = pisa.CreatePDF(rendered_html, dest=pdf_output)
+
+    if pisa_status.err:
+        return "PDF generation error", 500
+
+    pdf_output.seek(0)
+    
+    filename = f"LeakReport_{datetime.datetime.now().strftime('%Y-%m-%d')}_{inputs.get('batch_number', 'ID')}.pdf"
+    
+    response = make_response(pdf_output.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+    
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

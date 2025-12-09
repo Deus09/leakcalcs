@@ -272,6 +272,12 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pdfModal">
+                                    <i class="bi bi-file-earmark-pdf-fill me-2"></i> Download PDF Report
+                                </button>
+                            </div>
                         </div>
                         {% endif %}
 
@@ -328,6 +334,55 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="activateLicense()">{{ t.modal_btn }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="pdfModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Generate PDF Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pdfForm" action="/download-pdf" method="POST">
+                        <!-- Hidden fields to carry over calculation data -->
+                        <input type="hidden" name="fluid" id="pdf_fluid">
+                        <input type="hidden" name="leak_amount" id="pdf_leak_amount">
+                        <input type="hidden" name="op_pressure" id="pdf_op_pressure">
+                        <input type="hidden" name="op_pressure_unit" id="pdf_op_pressure_unit">
+                        <input type="hidden" name="op_temp" id="pdf_op_temp">
+                        <input type="hidden" name="op_temp_unit" id="pdf_op_temp_unit">
+                        <input type="hidden" name="he_pressure" id="pdf_he_pressure">
+                        <input type="hidden" name="he_pressure_unit" id="pdf_he_pressure_unit">
+                        <input type="hidden" name="he_temp" id="pdf_he_temp">
+                        <input type="hidden" name="he_temp_unit" id="pdf_he_temp_unit">
+                        <input type="hidden" name="he_purity" id="pdf_he_purity">
+                        <input type="hidden" name="calc_mode" id="pdf_calc_mode">
+                        <input type="hidden" name="input_method" id="pdf_input_method">
+                        <input type="hidden" name="sys_charge" id="pdf_sys_charge">
+                        <input type="hidden" name="lifespan" id="pdf_lifespan">
+                        <input type="hidden" name="max_loss" id="pdf_max_loss">
+
+                        <div class="mb-3">
+                            <label class="form-label">Project Name</label>
+                            <input type="text" class="form-control" name="project_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Engineer Name</label>
+                            <input type="text" class="form-control" name="engineer_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Batch Number / ID</label>
+                            <input type="text" class="form-control" name="batch_number" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Download Report</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
